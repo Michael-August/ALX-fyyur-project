@@ -110,9 +110,23 @@ ul.items > li > a {
 ul.items > li > a > i {
   padding: 7px 10px 0;
 }
-ul.items > li:hover {
+ul.items > li > a:hover {
   color: orange;
   cursor: pointer;
+}
+ul.items > li > .fa-trash:hover {
+  color: red;
+  cursor: pointer;
+}
+ul.items > li > .fa-trash {
+  color: red;
+  margin-top: -2rem;
+  float: right;
+  margin-left: 4rem;
+}
+ul.items > li {
+  display: flex;
+  align-items: center;
 }
 ul.items > li:hover h5 {
   color: orange;
