@@ -168,19 +168,20 @@ def create_venue_submission():
 		venue_seeking_talent = form.seeking_talent.data
 		venue_seeking_description = form.seeking_description.data
 
-		newVenue = Venue(
-			name=venue_name, city=venue_city, state=venue_state, address=venue_address, phone=venue_phone,
-			facebook_link=venue_facebook_link, image_link=venue_image_link, website_link=venue_website_link,
-			seeking_talent=venue_seeking_talent, seeking_description=venue_seeking_description, genres=venue_genres
-		)
-		if bool(Venue.query.filter_by(name=venue_name).first()):
-			flash('Venue ' + form.name.data + ' already exist!')
-			return render_template('forms/new_venue.html', form=form) 
+		if form.validate():
+			newVenue = Venue(
+				name=venue_name, city=venue_city, state=venue_state, address=venue_address, phone=venue_phone,
+				facebook_link=venue_facebook_link, image_link=venue_image_link, website_link=venue_website_link,
+				seeking_talent=venue_seeking_talent, seeking_description=venue_seeking_description, genres=venue_genres
+			)
+			if bool(Venue.query.filter_by(name=venue_name).first()):
+				flash('Venue ' + form.name.data + ' already exist!')
+				return render_template('forms/new_venue.html', form=form) 
 
-		db.session.add(newVenue)
-		db.session.commit()
-		# on successful db insert, flash success
-		flash('Venue ' + form.name.data + ' was successfully listed!')
+			db.session.add(newVenue)
+			db.session.commit()
+			# on successful db insert, flash success
+			flash('Venue ' + form.name.data + ' was successfully listed!')
 	except:
 		db.session.rollback()
 		error = True
@@ -249,8 +250,9 @@ def edit_venue_submission(venue_id):
 		venue.seeking_talent = form.seeking_talent.data
 		venue.seeking_description = form.seeking_description.data
 
-		db.session.add(venue)
-		db.session.commit()
+		if form.validate():
+			db.session.add(venue)
+			db.session.commit()
 		flash('Venue ' + form.name.data + ' was successfully edited!')
 	except:
 		db.session.rollback()
@@ -370,28 +372,33 @@ def create_artist_submission():
 		artist_seeking_venue = form.seeking_venue.data
 		artist_seeking_description = form.seeking_description.data
 
-		newArtist = Artist(
-			name=artist_name, city=artist_city, state=artist_state, phone=artist_phone, genres=artist_genres,
-			facebook_link=artist_facebook_link, image_link=artist_image_link, website_link=artist_website_link,
-			seeking_venue=artist_seeking_venue, seeking_description=artist_seeking_description
-		)
+		if form.validate():
+			newArtist = Artist(
+				name=artist_name, city=artist_city, state=artist_state, phone=artist_phone, genres=artist_genres,
+				facebook_link=artist_facebook_link, image_link=artist_image_link, website_link=artist_website_link,
+				seeking_venue=artist_seeking_venue, seeking_description=artist_seeking_description
+			)
 
-		if bool(Artist.query.filter_by(name=artist_name).first()):
-			flash('Artiste ' + form.name.data + ' already exist!')
-			return render_template('forms/new_artist.html', form=form) 
+			if bool(Artist.query.filter_by(name=artist_name).first()):
+				flash('Artiste ' + form.name.data + ' already exist!')
+				return render_template('forms/new_artist.html', form=form) 
 
-		db.session.add(newArtist)
-		db.session.commit()
-	except:
+			db.session.add(newArtist)
+			db.session.commit()
+		else: 
+			flash('Please fill the form fields correctly!')
+	except Exception as e:
 		error = True
-		db.session.rollback()		
+		err = str(e)
+		db.session.rollback()	
 	finally:
 		db.session.close()
 
 	if error:
-		flash('An error occurred. Artist ' + form.name.data + ' could not be listed.')
+		flash('An error occurred. Artist ' + form.name.data + ' could not be listed.' + err)
 
-	flash('Artist ' + form.name.data + ' was successfully listed!')
+	if error == False:
+		flash('Artist ' + form.name.data + ' was successfully listed!')
 	return render_template('pages/home.html')
 
 #  Update
@@ -432,9 +439,10 @@ def edit_artist_submission(artist_id):
 		artist.seeking_venue = form.seeking_venue.data
 		artist.seeking_description = form.seeking_description.data 
 
-		db.session.add(artist)
-		db.session.commit()
-		flash('Artist ' + form.name.data + ' was successfully edited!')
+		if form.validate():
+			db.session.add(artist)
+			db.session.commit()
+			flash('Artist ' + form.name.data + ' was successfully edited!')
 	except:
 		db.session.rollback()
 		error = True
@@ -503,13 +511,16 @@ def create_show_submission():
 		venue = Venue.query.get(show_venue_id)
 		artist = Artist.query.get(show_artist_id)
 
-		# venue.artists.append(artist)
-		newShow = Shows(venue_id=show_venue_id, artist_id=show_artist_id, start_time=show_start_time)
+		if form.validate():
+			# venue.artists.append(artist)
+			newShow = Shows(venue_id=show_venue_id, artist_id=show_artist_id, start_time=show_start_time)
 
-		db.session.add(newShow)
-		db.session.commit()
-		# on successful db insert, flash success
-		flash('Show was successfully listed!')
+			db.session.add(newShow)
+			db.session.commit()
+			# on successful db insert, flash success
+			flash('Show was successfully listed!')
+		else: 
+			flash('Please fill the form fields correctly!')
 	except Exception as e:
 		error = True
 		errMsg = str(e)
